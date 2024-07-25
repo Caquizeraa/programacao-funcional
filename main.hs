@@ -22,6 +22,10 @@ somatorio (c:r) = c+somatorio(r)
 -- Questão 14
 
 -- Questão 17
+insereordenado [] n = [n]
+insereordenado l1@(c:r) n 
+    | c > n = [n] ++ l1
+    | otherwise = [c] ++ insereordenado r n
 
 -- Questão 20
 -- Questão 23
