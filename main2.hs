@@ -28,6 +28,13 @@ tamanhoLista l = acumEsq (\c _ -> c + 1) 0 l
 ehPar :: Int -> Bool
 ehPar n = (n `mod` 2) == 0
 
+buscaK_esimo :: Int -> [t] -> t
+buscaK_esimo k l = buscaK_esimo' 0 k l
+    where
+        buscaK_esimo' :: Int -> Int -> [t] -> t
+        buscaK_esimo' i k (c:r)
+            | i == k    = c
+            | otherwise = buscaK_esimo' (i + 1) k r
 -- Q2
 
 maioresQue :: Real t => t -> [t] -> [t]
@@ -54,7 +61,7 @@ geraSequencia :: Int -> [Int]
 geraSequencia n = geraSequencia' [ [x, -x] | x <- [1..n]]
     where
         geraSequencia' :: [[Int]] -> [Int]
-        geraSequencia' l = acumEsq (\l1 l2 -> l1 ++ l2) [] l
+        geraSequencia' l = acumEsq (++) [] l
 
 -- geraSequencia n = geraSequencia' 1 n
 --     where
@@ -66,7 +73,7 @@ geraSequencia n = geraSequencia' [ [x, -x] | x <- [1..n]]
 -- Q11
 
 somatorio :: Real t => [t] -> t
-somatorio l = acumEsq (\x y -> x + y) 0 l
+somatorio l = acumEsq (+) 0 l
 
 -- Q14
 
@@ -82,10 +89,17 @@ interseccao l1@(c1:r1) l2 = interseccao' c1 l2 ++ interseccao r1 l2
 
 -- Q20
 
-mediana :: Real t=> [t] -> t
+mediana :: (Real t, Fractional t) => [t] -> t
 mediana l = mediana' (insertionSort l)
     where
-        mediana' :: Real t => [t] -> t
+        -- mediana' :: Real t => [t] -> t
         mediana' l
-            | ehPar (tamanhoLista l) = 0
-            | otherwise              = 0
+            | ehPar (tamanhoLista l) = medianaPar l
+            | otherwise              = medianaImpar l
+            where
+                medianaImpar l = 
+                    let k = (tamanhoLista l) `quot` 2
+                    in buscaK_esimo k l
+                medianaPar l = 
+                    let k = (tamanhoLista l) `quot` 2
+                    in ((buscaK_esimo (k - 1) l) + (buscaK_esimo k l)) / 2
