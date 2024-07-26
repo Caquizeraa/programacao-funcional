@@ -22,10 +22,10 @@ merge [] l2 = l2
 insertionSort :: Ord t => [t] -> [t]
 insertionSort l = acumEsq merge [] (transforma (\a -> [a]) l)
 
-tamanhoLista :: [b] -> Int
+tamanhoLista :: Integral t => [b] -> t
 tamanhoLista l = acumEsq (\c _ -> c + 1) 0 l 
 
-ehPar :: Int -> Bool
+ehPar :: Integral t => t -> Bool
 ehPar n = (n `mod` 2) == 0
 
 buscaK_esimo :: Int -> [t] -> t
@@ -35,6 +35,15 @@ buscaK_esimo k l = buscaK_esimo' 0 k l
         buscaK_esimo' i k (c:r)
             | i == k    = c
             | otherwise = buscaK_esimo' (i + 1) k r
+
+
+dividirLista :: Integral t => t -> [a] -> [[a]]
+dividirLista k l = dividirLista' 0 k l
+    where
+        dividirLista' i k l@(c:r)
+            | i < k     = concatenarPares ([[c], []]) (dividirLista' (i + 1) k r)
+            | otherwise = [[], l]
+            where concatenarPares (c1:r1) (c2:r2) = [c1 ++ c2, (acumEsq (++) [] r1) ++ (acumEsq (++) [] r2)]
 -- Q2
 
 maioresQue :: Real t => t -> [t] -> [t]
@@ -54,6 +63,7 @@ removerUltimo l@(c:r)
         ehUltimo :: [a] -> Bool 
         ehUltimo [_] = True
         ehUltimo _ = False
+    
 
 -- Q8
 
@@ -103,3 +113,29 @@ mediana l = mediana' (insertionSort l)
                 medianaPar l = 
                     let k = (tamanhoLista l) `quot` 2
                     in ((buscaK_esimo (k - 1) l) + (buscaK_esimo k l)) / 2
+
+-- Q23
+
+rodarEsquerda :: (Integral t) => t -> [a] -> [a]
+rodarEsquerda n l = rodarEsquerda' (n `mod` (tamanhoLista l)) l
+    where
+        rodarEsquerda' 0 l = l 
+        rodarEsquerda' n l =
+            let (c1:c2:_) = dividirLista n l
+            in c2 ++ c1
+
+rodarDireita :: (Integral t) => t -> [a] -> [a]
+rodarDireita n l = rodarEsquerda (tam - (n `mod` (tam))) l
+    where tam = tamanhoLista l
+-- Q26
+
+media :: (Real t, Fractional t) => [t] -> t
+media l = 
+    let tam = tamanhoLista l
+    in (acumEsq (+) 0.0 l) / fromIntegral tam
+
+-- Q29
+
+seleciona :: [t] -> [Int] -> [t]
+seleciona l1 l2 = acumEsq (\ac a -> ac ++ [(buscaK_esimo a l1)]) [] l2'
+    where l2' = transforma (\a -> a - 1) l2
