@@ -14,8 +14,8 @@ acumDir func ac []      = ac
 
 merge :: Ord t => [t] -> [t] -> [t]
 merge l1@(c1:r1) l2@(c2:r2)
-    | c1 < c2   = [c1] ++ merge r1 l2
-    | otherwise = [c2] ++ merge l1 r2
+    | c1 < c2   = c1 : merge r1 l2
+    | otherwise = c2 : merge l1 r2
 merge l1 [] = l1
 merge [] l2 = l2
 
@@ -28,22 +28,29 @@ tamanhoLista l = acumEsq (\c _ -> c + 1) 0 l
 ehPar :: Integral t => t -> Bool
 ehPar n = (n `mod` 2) == 0
 
-buscaK_esimo :: Int -> [t] -> t
+buscaK_esimo :: Integer -> [t] -> t
 buscaK_esimo k l = buscaK_esimo' 0 k l
     where
-        buscaK_esimo' :: Int -> Int -> [t] -> t
+        buscaK_esimo' :: Integer -> Integer -> [t] -> t
         buscaK_esimo' i k (c:r)
             | i == k    = c
             | otherwise = buscaK_esimo' (i + 1) k r
 
+obtemSubLista :: Integer -> Integer -> [t] -> [t]
+obtemSubLista k_1 k_2 l =
+    let 
+        (_:r1:_) = dividirLista k_1 l
+        (r2:_:_) = dividirLista (k_2 - k_1 + 1) r1
+    in r2
 
 dividirLista :: Integral t => t -> [a] -> [[a]]
 dividirLista k l = dividirLista' 0 k l
     where
+        dividirLista' _ _ [] = [[], []]
         dividirLista' i k l@(c:r)
             | i < k     = concatenarPares ([[c], []]) (dividirLista' (i + 1) k r)
             | otherwise = [[], l]
-            where concatenarPares (c1:r1) (c2:r2) = [c1 ++ c2, (acumEsq (++) [] r1) ++ (acumEsq (++) [] r2)]
+            where concatenarPares (l1_a:l1_b:_) (l2_a:l2_b:_) = [l1_a ++ l2_a, l1_b ++ l2_b]
 -- Q2
 
 maioresQue :: Real t => t -> [t] -> [t]
@@ -111,8 +118,10 @@ mediana l = mediana' (insertionSort l)
                     let k = (tamanhoLista l) `quot` 2
                     in buscaK_esimo k l
                 medianaPar l = 
-                    let k = (tamanhoLista l) `quot` 2
-                    in ((buscaK_esimo (k - 1) l) + (buscaK_esimo k l)) / 2
+                    let 
+                        k = (tamanhoLista l) `quot` 2
+                        (n1:n2:_) = obtemSubLista (k - 1) k l
+                    in (n1 + n2) / 2
 
 -- Q23
 
@@ -136,6 +145,6 @@ media l =
 
 -- Q29
 
-seleciona :: [t] -> [Int] -> [t]
+seleciona :: [t] -> [Integer] -> [t]
 seleciona l1 l2 = acumEsq (\ac a -> ac ++ [(buscaK_esimo a l1)]) [] l2'
     where l2' = transforma (\a -> a - 1) l2
