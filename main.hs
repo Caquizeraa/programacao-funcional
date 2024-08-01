@@ -73,11 +73,15 @@ soma_digitos n = somatorio(soma_digitos' n)
 --compactar :: (Integral t) => [t] -> [[t]]
 
 
-sublistas [] = []
-sublistas (c:r) = sublistas' c r         
+compactar [] = []
+compactar (c:r) = compactar' c r 1       
     where
-        sublistas' a [] = [[a]] 
-        sublistas' n (c2:r2)
-            | n == c2 = sublistas' c2 r2
-            | otherwise = [[n]] ++ sublistas' c2 r2
+        compactar' a [] b
+            | b == 1    = [[a]]
+            | otherwise = [[b, a]]
+        compactar' n (c2:r2) b
+            | n == c2 = compactar' c2 r2 (b+1)
+            | b == 1 = [n] : compactar' c2 r2 1
+            | otherwise = [b,n] : compactar' c2 r2 1
+
 
