@@ -31,8 +31,8 @@ somatorio (c:r) = c+somatorio(r)
 insere_ordenado :: (Ord t) => [t] -> t -> [t]
 insere_ordenado [] n = [n]
 insere_ordenado l1@(c:r) n 
-    | c > n = [n] ++ l1
-    | otherwise = [c] ++ insere_ordenado r n
+    | c > n = n : l1
+    | otherwise = c : insere_ordenado r n
 
 -- Questão 20
 -- implementar ordenacao
@@ -55,14 +55,18 @@ insere_ordenado l1@(c:r) n
 -- fazer
 -- DECLARAÇÃO ERRADA
 --primo :: Integral -> Bool
-primo 1 = False
+primo :: (Integral t) => t -> Bool
 primo 2 = True
-primo n = null [ x | x <- [2..n-1], n `mod` x == 0]
+primo n
+    | n <= 1 = False
+    | [ x | x <- [2..n-1], n `mod` x == 0] == [] = True
+    | otherwise = False
 
 -- Questão 33
 -- fazer
 -- DECLARAÇÃO ERRADA (PODE RECEBER INTEGER, MAS RETORNAR INT)
 --soma_digitos :: (Integral t) => t -> t
+soma_digitos :: (Integral t) => t -> t
 soma_digitos n = somatorio(soma_digitos' n)
     where soma_digitos' n
             | n < 10 = [n]
@@ -72,7 +76,7 @@ soma_digitos n = somatorio(soma_digitos' n)
 -- fazer
 --compactar :: (Integral t) => [t] -> [[t]]
 
-
+compactar :: (Integral t) => [t] -> [[t]]
 compactar [] = []
 compactar (c:r) = compactar' c r 1       
     where
