@@ -148,11 +148,21 @@ seleciona l1 l2 = acumEsq (\ac a -> ac ++ [(buscaK_esimo a l1)]) [] l2'
 
 -- Questão 32 *
 primo :: (Integral t) => t -> Bool
+-- primo 2 = True
+-- primo n
+--     | n <= 1                                     = False
+--     | [ x | x <- [2..n-1], n `mod` x == 0] == [] = True
+--     | otherwise                                  = False
+
 primo 2 = True
-primo n
-    | n <= 1                                     = False
-    | [ x | x <- [2..n-1], n `mod` x == 0] == [] = True
-    | otherwise                                  = False
+primo n 
+    | n <= 1 = False
+    | otherwise = primo' n 2
+    where 
+    primo' n k
+        | n == k = True
+        | n `mod` k == 0 = False
+        | otherwise      = primo' n (k+1)
 
 -- Questão 33
 soma_digitos :: (Integral t) => t -> t 
