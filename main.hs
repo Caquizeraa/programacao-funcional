@@ -154,7 +154,7 @@ primo n
     | otherwise = primo' n 2
     where 
     primo' n k
-        | n == k = True
+        | n == k         = True
         | n `mod` k == 0 = False
         | otherwise      = primo' n (k+1)
 
