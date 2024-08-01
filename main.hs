@@ -148,12 +148,6 @@ seleciona l1 l2 = acumEsq (\ac a -> ac ++ [(buscaK_esimo a l1)]) [] l2'
 
 -- Questão 32 *
 primo :: (Integral t) => t -> Bool
--- primo 2 = True
--- primo n
---     | n <= 1                                     = False
---     | [ x | x <- [2..n-1], n `mod` x == 0] == [] = True
---     | otherwise                                  = False
-
 primo 2 = True
 primo n 
     | n <= 1 = False
