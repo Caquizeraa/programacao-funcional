@@ -52,15 +52,32 @@ insere_ordenado l1@(c:r) n
 --seleciona
 
 -- Questão 32
+-- fazer
 -- DECLARAÇÃO ERRADA
---primo :: (Integral t) (Bool a) => t -> a
---primo
+--primo :: Integral -> Bool
+primo 1 = False
+primo 2 = True
+primo n = null [ x | x <- [2..n-1], n `mod` x == 0]
 
 -- Questão 33
+-- fazer
 -- DECLARAÇÃO ERRADA (PODE RECEBER INTEGER, MAS RETORNAR INT)
 --soma_digitos :: (Integral t) => t -> t
---soma_digitos
+soma_digitos n = somatorio(soma_digitos' n)
+    where soma_digitos' n
+            | n < 10 = [n]
+            | otherwise = soma_digitos' (n `div` 10) ++ [(n `mod` 10)]
 
 -- Questão 35
+-- fazer
 --compactar :: (Integral t) => [t] -> [[t]]
---compactar
+
+
+sublistas [] = []
+sublistas (c:r) = sublistas' c r         
+    where
+        sublistas' a [] = [[a]] 
+        sublistas' n (c2:r2)
+            | n == c2 = sublistas' c2 r2
+            | otherwise = [[n]] ++ sublistas' c2 r2
+
