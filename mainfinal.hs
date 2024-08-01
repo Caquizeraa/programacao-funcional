@@ -21,8 +21,8 @@ acumDir func ac []      = ac
 
 merge :: Ord t => [t] -> [t] -> [t]
 merge l1@(c1:r1) l2@(c2:r2)
-    | c1 < c2   = [c1] ++ merge r1 l2
-    | otherwise = [c2] ++ merge l1 r2
+    | c1 < c2   = c1 : merge r1 l2
+    | otherwise = c2 : merge l1 r2
 merge l1 [] = l1
 merge [] l2 = l2
 
@@ -35,49 +35,56 @@ tamanhoLista l = acumEsq (\c _ -> c + 1) 0 l
 ehPar :: Integral t => t -> Bool
 ehPar n = (n `mod` 2) == 0
 
-buscaK_esimo :: Int -> [t] -> t
+buscaK_esimo :: Integer -> [t] -> t
 buscaK_esimo k l = buscaK_esimo' 0 k l
     where
-        buscaK_esimo' :: Int -> Int -> [t] -> t
+        buscaK_esimo' :: Integer -> Integer -> [t] -> t
         buscaK_esimo' i k (c:r)
             | i == k    = c
             | otherwise = buscaK_esimo' (i + 1) k r
 
+obtemSubLista :: Integer -> Integer -> [t] -> [t]
+obtemSubLista k_1 k_2 l =
+    let 
+        (_:r1:_) = dividirLista k_1 l
+        (r2:_:_) = dividirLista (k_2 - k_1 + 1) r1
+    in r2
 
 dividirLista :: Integral t => t -> [a] -> [[a]]
 dividirLista k l = dividirLista' 0 k l
     where
+        dividirLista' _ _ [] = [[], []]
         dividirLista' i k l@(c:r)
             | i < k     = concatenarPares ([[c], []]) (dividirLista' (i + 1) k r)
             | otherwise = [[], l]
-            where concatenarPares (c1:r1) (c2:r2) = [c1 ++ c2, (acumEsq (++) [] r1) ++ (acumEsq (++) [] r2)]
+            where concatenarPares (l1_a:l1_b:_) (l2_a:l2_b:_) = [l1_a ++ l2_a, l1_b ++ l2_b]
 
 -- Resolução das Questões
 
 -- Questão 2
-maioresQue :: Real t => t -> [t] -> [t]
-maioresQue n (c:r)
-    | c > n     = c : maioresQue n r
-    | otherwise = maioresQue n r
-maioresQue _ [] = []
+maiores_que :: Real t => t -> [t] -> [t]
+maiores_que n (c:r)
+    | c > n     = c : maiores_que n r
+    | otherwise = maiores_que n r
+maiores_que _ [] = []
 
 -- Questão 5
-removerUltimo :: [t] -> [t]
-removerUltimo [] = []
-removerUltimo l@(c:r)
-    | removerUltimo' l = removerUltimo r
-    | otherwise  = c : removerUltimo r
+remover_ultimo :: [t] -> [t]
+remover_ultimo [] = []
+remover_ultimo l@(c:r)
+    | remover_ultimo' l = remover_ultimo r
+    | otherwise  = c : remover_ultimo r
     where
-        removerUltimo' :: [a] -> Bool 
-        removerUltimo' [_] = True
-        removerUltimo' _ = False
+        remover_ultimo' :: [a] -> Bool 
+        remover_ultimo' [_] = True
+        remover_ultimo' _ = False
 
 -- Questão 8
-geraSequencia :: Int -> [Int]
-geraSequencia n = geraSequencia' [ [x, -x] | x <- [1..n]]
+gera_sequencia :: Int -> [Int]
+gera_sequencia n = gera_sequencia' [ [x, -x] | x <- [1..n]]
     where
-        geraSequencia' :: [[Int]] -> [Int]
-        geraSequencia' l = acumEsq (++) [] l
+        gera_sequencia' :: [[Int]] -> [Int]
+        gera_sequencia' l = acumEsq (++) [] l
 
 -- Questão 11
 somatorio :: Real t => [t] -> t
@@ -102,10 +109,9 @@ insere_ordenado l1@(c:r) n
     | otherwise = c : insere_ordenado r n
 
 -- Questão 20
-mediana :: (Real t, Fractional t) => [t] -> t
+mediana :: (RealFrac t) => [t] -> t
 mediana l = mediana' (insertionSort l)
     where
-        -- mediana' :: Real t => [t] -> t
         mediana' l
             | ehPar (tamanhoLista l) = medianaPar l
             | otherwise              = medianaImpar l
@@ -114,43 +120,42 @@ mediana l = mediana' (insertionSort l)
                     let k = (tamanhoLista l) `quot` 2
                     in buscaK_esimo k l
                 medianaPar l = 
-                    let k = (tamanhoLista l) `quot` 2
-                    in ((buscaK_esimo (k - 1) l) + (buscaK_esimo k l)) / 2
+                    let 
+                        k = (tamanhoLista l) `quot` 2
+                        (n1:n2:_) = obtemSubLista (k - 1) k l
+                    in (n1 + n2) / 2
+
 
 -- Questão 23
-rodarEsquerda :: (Integral t) => t -> [a] -> [a]
-rodarEsquerda n l = rodarEsquerda' (n `mod` (tamanhoLista l)) l
+rodar_direita :: (Integral t) => t -> [a] -> [a]
+rodar_direita n l = rodar_direita' (n `mod` tamanhoLista') l
     where
-        rodarEsquerda' 0 l = l 
-        rodarEsquerda' n l =
-            let (c1:c2:_) = dividirLista n l
+        rodar_direita' n l =
+            let (c1:c2:_) = dividirLista (tamanhoLista' - n) l
             in c2 ++ c1
-
-rodarDireita :: (Integral t) => t -> [a] -> [a]
-rodarDireita n l = rodarEsquerda (tam - (n `mod` (tam))) l
-    where tam = tamanhoLista l
+        tamanhoLista' = tamanhoLista l
 
 -- Questão 26
-media :: (Real t, Fractional t) => [t] -> t
+media :: (RealFrac t) => [t] -> t
 media l = 
     let tam = tamanhoLista l
-    in (acumEsq (+) 0.0 l) / fromIntegral tam
+    in (acumEsq (+) 0 l) / fromIntegral tam
 
 -- Questão 29
-seleciona :: [t] -> [Int] -> [t]
+seleciona :: [t] -> [Integer] -> [t]
 seleciona l1 l2 = acumEsq (\ac a -> ac ++ [(buscaK_esimo a l1)]) [] l2'
     where l2' = transforma (\a -> a - 1) l2
 
--- Questão 32
+-- Questão 32 *
 primo :: (Integral t) => t -> Bool
 primo 2 = True
 primo n
-    | n <= 1 = False
+    | n <= 1                                     = False
     | [ x | x <- [2..n-1], n `mod` x == 0] == [] = True
-    | otherwise = False
+    | otherwise                                  = False
 
 -- Questão 33
-soma_digitos :: (Integral t) => t -> Int 
+soma_digitos :: (Integral t) => t -> t 
 soma_digitos n = somatorio(soma_digitos' n)
     where soma_digitos' n
             | n < 10 = [n]
